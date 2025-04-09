@@ -1,0 +1,105 @@
+cmake_minimum_required(VERSION 3.10)
+project(CFGParser)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
+
+# Find LLVM and Clang packages
+find_package(LLVM REQUIRED CONFIG)
+find_package(Clang REQUIRED CONFIG)
+
+# Add LLVM and Clang include directories
+include_directories(${LLVM_INCLUDE_DIRS})
+include_directories(${CLANG_INCLUDE_DIRS})
+
+# Find Qt5 packages
+find_package(Qt5 COMPONENTS 
+    Core 
+    Gui 
+    Widgets 
+    PrintSupport 
+    REQUIRED)
+
+# Add include directory explicitly
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+# Source files
+set(SOURCES
+    src/gui/mainwindow.cpp
+    src/gui/cfg_gui.cpp
+    src/gui/customgraphview.cpp
+    src/cfg_generation_action.cpp
+    src/cfg_graph.cpp
+    src/cfg_analyzer.cpp
+    src/graph_generator.cpp
+    src/parser.cpp
+    src/visualizer.cpp
+    src/input.cpp
+)
+
+# Header files
+set(HEADERS
+    include/ui_mainwindow.h
+    include/customgraphview.h
+    include/cfg_gui.h
+    include/cfg_analyzer.h
+    include/graph_generator.h
+    include/parser.h
+    include/visualizer.h
+    include/mainwindow.h
+)
+
+# UI files
+set(UI_FILES
+    src/gui/mainwindow.ui
+)
+
+set(HEADERS_WITH_MOC
+    include/cfg_gui.h
+    include/customgraphview.h
+    include/mainwindow.h
+)
+
+qt5_wrap_cpp(MOC_FILES ${HEADERS_WITH_MOC})
+
+# Create executable
+add_executable(CFGParser 
+    ${SOURCES} 
+    ${HEADERS} 
+    ${UI_FILES}
+    ${MOC_FILES}
+)
+
+# Add LLVM and Clang definitions
+add_definitions(${LLVM_DEFINITIONS})
+add_definitions(${CLANG_DEFINITIONS})
+
+# Link libraries
+target_link_libraries(CFGParser 
+    # Qt Libraries
+    Qt5::Core 
+    Qt5::Gui 
+    Qt5::Widgets 
+    Qt5::PrintSupport
+    
+    # LLVM Libraries
+    LLVM
+    
+    # Clang Libraries
+    clangTooling
+    clangFrontend
+    clangDriver
+    clangSerialization
+    clangParse
+    clangSema
+    clangAnalysis
+    clangEdit
+    clangAST
+    clangLex
+    clangBasic
+)
+
+# Ensure the correct LLVM library path is used
+link_directories(${LLVM_LIBRARY_DIRS})
